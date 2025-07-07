@@ -14,100 +14,89 @@ export async function onRequestPost(context) {
       });
     }
     
-    // Build the prompt for Gemini
-    const prompt = `
-      You are an expert consultant specializing in AI-driven software development workflows and tooling.
-      Your task is to analyze a user's needs and recommend the top 3 AI software engineering tools from a provided list.
+    // Build the prompt for Cloudflare AI
+    const prompt = `You are an expert consultant specializing in AI-driven software development workflows and tooling.
+Your task is to analyze a user's needs and recommend the top 3 AI software engineering tools from a provided list.
 
-      **User's Requirements:**
-      - Primary Goal: ${userChoices.goal === 'productivity' ? 'Boost individual developer productivity (Augmentation)' : 'Delegate and automate entire tasks (Automation)'}
-      - Technology Ecosystem: ${userChoices.ecosystem}
-      - Privacy Priority: ${userChoices.privacy === 'privacy' ? 'High - Prefers on-premise, self-hosted, or BYOK' : 'Low - Prefers maximum performance, cloud models are fine'}
-      - Primary User Persona: ${userChoices.persona}
+**User's Requirements:**
+- Primary Goal: ${userChoices.goal === 'productivity' ? 'Boost individual developer productivity (Augmentation)' : 'Delegate and automate entire tasks (Automation)'}
+- Technology Ecosystem: ${userChoices.ecosystem}
+- Privacy Priority: ${userChoices.privacy === 'privacy' ? 'High - Prefers on-premise, self-hosted, or BYOK' : 'Low - Prefers maximum performance, cloud models are fine'}
+- Primary User Persona: ${userChoices.persona}
 
-      **Available Tools Data:**
-      ${JSON.stringify(toolsData, null, 2)}
+**Available Tools Data:**
+${JSON.stringify(toolsData, null, 2)}
 
-      **Your Task:**
-      Based *only* on the user's requirements and the provided tool data, identify the top 3 most suitable tools. For each recommendation, provide a concise, one-sentence justification explaining *why* it's a good fit for this specific user. Your response must be in the specified JSON format. Do not recommend tools that are a clear mismatch for the user's stated ecosystem or privacy preferences. For example, if the user is on AWS, prioritize AWS Q Developer. If they need high privacy, prioritize Tabnine, Aider, or Refact.ai.
-    `;
+**Your Task:**
+Based *only* on the user's requirements and the provided tool data, identify the top 3 most suitable tools. For each recommendation, provide a concise, one-sentence justification explaining *why* it's a good fit for this specific user.
 
-    const chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
-
-    const payload = {
-      contents: chatHistory,
-      generationConfig: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: "OBJECT",
-          properties: {
-            recommendations: {
-              type: "ARRAY",
-              items: {
-                type: "OBJECT",
-                properties: {
-                  rank: { type: "NUMBER" },
-                  tool: { type: "STRING" },
-                  justification: { type: "STRING" }
-                },
-                required: ["rank", "tool", "justification"]
-              }
-            }
-          },
-          required: ["recommendations"]
-        }
-      }
-    };
-    
-    // Get API key from environment variable
-    const apiKey = env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return new Response(JSON.stringify({ error: 'API key not configured' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
-      });
+Please respond with a JSON object in this exact format:
+{
+  "recommendations": [
+    {
+      "rank": 1,
+      "tool": "Tool Name",
+      "justification": "One sentence explanation"
+    },
+    {
+      "rank": 2,
+      "tool": "Tool Name",
+      "justification": "One sentence explanation"
+    },
+    {
+      "rank": 3,
+      "tool": "Tool Name",
+      "justification": "One sentence explanation"
     }
-    
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-    
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+  ]
+}
+
+Do not recommend tools that are a clear mismatch for the user's stated ecosystem or privacy preferences.`;
+
+    // Use Cloudflare AI
+    const aiResponse = await env.AI.run("@cf/meta/llama-3.1-8b-instruct", {
+      messages: [
+        {
+          role: "system",
+          content: "You are a helpful AI consultant. Always respond with valid JSON in the exact format requested."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      max_tokens: 1000,
+      temperature: 0.7
     });
 
-    if (!response.ok) {
-      const errorBody = await response.text();
-      console.error('Gemini API error:', errorBody);
-      return new Response(JSON.stringify({ error: 'AI service temporarily unavailable' }), {
+    // Parse the AI response
+    let recommendations;
+    try {
+      // Extract JSON from the response
+      const responseText = aiResponse.response || aiResponse.result?.response || '';
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        recommendations = JSON.parse(jsonMatch[0]);
+      } else {
+        throw new Error('No JSON found in AI response');
+      }
+    } catch (parseError) {
+      console.error('AI response parsing error:', parseError);
+      return new Response(JSON.stringify({ error: 'Failed to parse AI response' }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' }
       });
     }
-
-    const result = await response.json();
     
-    if (result.candidates && result.candidates.length > 0 &&
-        result.candidates[0].content && result.candidates[0].content.parts &&
-        result.candidates[0].content.parts.length > 0) {
-      const text = result.candidates[0].content.parts[0].text;
-      const recommendations = JSON.parse(text);
-      
-      return new Response(JSON.stringify(recommendations), {
-        status: 200,
-        headers: { 
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST',
-          'Access-Control-Allow-Headers': 'Content-Type'
-        }
-      });
-    } else {
-      return new Response(JSON.stringify({ error: 'Invalid response from AI service' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
-      });
-    }
+    return new Response(JSON.stringify(recommendations), {
+      status: 200,
+      headers: { 
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST',
+        'Access-Control-Allow-Headers': 'Content-Type'
+      }
+    });
     
   } catch (error) {
     console.error('API error:', error);

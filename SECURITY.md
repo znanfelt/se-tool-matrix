@@ -42,7 +42,6 @@ Never commit files containing:
 
 ## Cloudflare Setup
 
-1. Set environment variables in Cloudflare Pages dashboard:
-   - `GEMINI_API_KEY` - Your Google Gemini API key
-
-2. Do NOT set the API key in GitHub secrets - it should only be in Cloudflare's environment.
+1. Cloudflare Workers AI is automatically available with Cloudflare Pages + Functions
+2. No additional environment variables or API keys needed
+3. AI functionality works out-of-the-box with your Cloudflare account

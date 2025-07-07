@@ -5,7 +5,7 @@ A responsive web application that helps developers choose the right AI software 
 ## Features
 
 - Interactive decision matrix with comprehensive tool comparison
-- AI-powered recommendation system using Google Gemini
+- AI-powered recommendation system using Cloudflare Workers AI
 - Responsive design with dark theme
 - Secure backend API implementation
 
@@ -14,8 +14,9 @@ A responsive web application that helps developers choose the right AI software 
 ### Prerequisites
 
 1. A Cloudflare account
-2. A Google Gemini API key ([Get one here](https://makersuite.google.com/app/apikey))
-3. A GitHub repository (for CI/CD)
+2. A GitHub repository (for CI/CD)
+
+Note: No external AI API key needed - uses Cloudflare Workers AI automatically!
 
 ### Quick Start
 
@@ -31,8 +32,8 @@ A responsive web application that helps developers choose the right AI software 
 
 3. **Set Environment Variables** in Cloudflare Pages:
    - Go to your Pages project → Settings → Environment variables
-   - Add: `GEMINI_API_KEY` with your actual Google Gemini API key
-   - **Important**: Set this for both "Production" and "Preview" environments
+   - **No manual setup needed!** Cloudflare Workers AI is automatically available
+   - AI functionality works out-of-the-box with Cloudflare Pages + Functions
 
 4. **Configure GitHub Secrets** (for CI/CD):
    - Go to your GitHub repo → Settings → Secrets and variables → Actions
@@ -70,9 +71,9 @@ If you prefer not to use GitHub Actions:
    - Create `.env` from template
    - Validate your development environment
 
-3. **Add your API key**:
-   - Edit `.env` and replace `your_actual_gemini_api_key_here` with your real Gemini API key
-   - Get one at: <https://makersuite.google.com/app/apikey>
+3. **No API key setup needed**:
+   - Cloudflare Workers AI is automatically available
+   - No external API keys required
 
 4. **Start local development server**:
 
@@ -130,5 +131,5 @@ This project follows security best practices for public repositories:
 
 - HTML5, CSS3, JavaScript (ES6+)
 - Tailwind CSS for styling
-- Google Gemini API for AI recommendations
+- Cloudflare Workers AI for AI recommendations
 - Cloudflare Pages + Functions for hosting and backend
