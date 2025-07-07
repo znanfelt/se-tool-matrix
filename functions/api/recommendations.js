@@ -109,7 +109,8 @@ export async function onRequestPost(context) {
 
     // Validate each tool structure
     for (const tool of toolsData) {
-      if (!tool.name || typeof tool.name !== 'string' || tool.name.length > 100) {
+      const toolName = tool.name || tool.tool; // Support both 'name' and 'tool' properties
+      if (!toolName || typeof toolName !== 'string' || toolName.length > 100) {
         return new Response(JSON.stringify({ error: 'Invalid tool data structure' }), {
           status: 400,
           headers: { 
