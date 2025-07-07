@@ -7,6 +7,7 @@ export async function onRequestPost(context) {
     const allowedOrigins = [
       'https://se-tool-matrix.pages.dev',           // Production domain
       'https://se-tool-matrix-preview.pages.dev',  // Preview domain
+      'https://matrix.zacharynanfelt.com',
       'http://localhost:8788',                      // Local development
       'http://localhost:3000',                      // Alternative local dev
       'http://127.0.0.1:8788',                      // Local development
@@ -324,6 +325,7 @@ export async function onRequestOptions(context) {
   const allowedOrigins = [
     'https://se-tool-matrix.pages.dev',
     'https://se-tool-matrix-preview.pages.dev',
+    'https://matrix.zacharynanfelt.com',
     'http://localhost:8788',
     'http://localhost:3000',
     'http://127.0.0.1:8788',
