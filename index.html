@@ -427,43 +427,86 @@
          */
         function displayResults(data) {
             modalTitle.textContent = 'Your Personalized Recommendations';
-            let resultsHTML = `
-                <div class="space-y-4">
-            `;
-            const medalColors = ['text-yellow-400', 'text-gray-400', 'text-yellow-600'];
-            
+            resultsContainer.innerHTML = '';
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'space-y-4';
+
             data.recommendations.forEach((rec, index) => {
-                const toolDetails = toolsData.find(t => t.tool === rec.tool);
-                resultsHTML += `
-                    <div class="bg-[#1f2937] p-4 rounded-lg border border-gray-700 shadow-md">
-                        <div class="flex items-start">
-                             <div class="text-2xl mr-4 mt-1">${['🥇', '🥈', '🥉'][index]}</div>
-                            <div>
-                                <h3 class="text-lg font-bold text-white">${rec.rank}. ${rec.tool}</h3>
-                                <p class="text-indigo-400 font-semibold text-sm mb-2">${toolDetails.category}</p>
-                                <p class="text-gray-300 mb-3"><strong class="text-white">Justification:</strong> ${rec.justification}</p>
-                                <div class="text-xs text-gray-400 border-t border-gray-600 pt-2 mt-2">
-                                    <p><strong>Use Case:</strong> ${toolDetails.useCase}</p>
-                                    <p><strong>Differentiator:</strong> ${toolDetails.differentiator}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                const toolDetails = toolsData.find(t => t.tool === rec.tool) || {};
+
+                const card = document.createElement('div');
+                card.className = 'bg-[#1f2937] p-4 rounded-lg border border-gray-700 shadow-md';
+
+                const flex = document.createElement('div');
+                flex.className = 'flex items-start';
+
+                const medal = document.createElement('div');
+                medal.className = 'text-2xl mr-4 mt-1';
+                medal.textContent = ['🥇', '🥈', '🥉'][index] || '';
+
+                const content = document.createElement('div');
+
+                const title = document.createElement('h3');
+                title.className = 'text-lg font-bold text-white';
+                title.textContent = `${rec.rank}. ${rec.tool}`;
+
+                const category = document.createElement('p');
+                category.className = 'text-indigo-400 font-semibold text-sm mb-2';
+                category.textContent = toolDetails.category || '';
+
+                const justification = document.createElement('p');
+                justification.className = 'text-gray-300 mb-3';
+                const strongJust = document.createElement('strong');
+                strongJust.className = 'text-white';
+                strongJust.textContent = 'Justification:';
+                justification.appendChild(strongJust);
+                justification.append(' ' + rec.justification);
+
+                const info = document.createElement('div');
+                info.className = 'text-xs text-gray-400 border-t border-gray-600 pt-2 mt-2';
+
+                const use = document.createElement('p');
+                const strongUse = document.createElement('strong');
+                strongUse.textContent = 'Use Case:';
+                use.appendChild(strongUse);
+                use.append(' ' + (toolDetails.useCase || ''));
+
+                const diff = document.createElement('p');
+                const strongDiff = document.createElement('strong');
+                strongDiff.textContent = 'Differentiator:';
+                diff.appendChild(strongDiff);
+                diff.append(' ' + (toolDetails.differentiator || ''));
+
+                info.appendChild(use);
+                info.appendChild(diff);
+
+                content.appendChild(title);
+                content.appendChild(category);
+                content.appendChild(justification);
+                content.appendChild(info);
+
+                flex.appendChild(medal);
+                flex.appendChild(content);
+                card.appendChild(flex);
+                wrapper.appendChild(card);
             });
 
-            resultsHTML += `
-                </div>
-                <div class="mt-6 text-center">
-                    <button id="tryAgainBtn" class="btn-secondary text-white font-bold py-2 px-6 rounded-lg">Start Over</button>
-                </div>
-            `;
+            resultsContainer.appendChild(wrapper);
 
-            resultsContainer.innerHTML = resultsHTML;
+            const controls = document.createElement('div');
+            controls.className = 'mt-6 text-center';
+            const tryAgain = document.createElement('button');
+            tryAgain.id = 'tryAgainBtn';
+            tryAgain.className = 'btn-secondary text-white font-bold py-2 px-6 rounded-lg';
+            tryAgain.textContent = 'Start Over';
+            controls.appendChild(tryAgain);
+            resultsContainer.appendChild(controls);
+
             loadingContainer.classList.add('hidden');
             resultsContainer.classList.remove('hidden');
 
-            document.getElementById('tryAgainBtn').addEventListener('click', resetModal);
+            tryAgain.addEventListener('click', resetModal);
         }
 
         /**
@@ -472,16 +515,28 @@
          */
         function displayError(message) {
             modalTitle.textContent = 'An Error Occurred';
-            resultsContainer.innerHTML = `
-                <div class="text-center py-10">
-                    <p class="text-red-400 mb-4">${message}</p>
-                    <button id="tryAgainBtnError" class="btn-secondary text-white font-bold py-2 px-6 rounded-lg">Try Again</button>
-                </div>
-            `;
+            resultsContainer.innerHTML = '';
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'text-center py-10';
+
+            const msg = document.createElement('p');
+            msg.className = 'text-red-400 mb-4';
+            msg.textContent = message;
+
+            const btn = document.createElement('button');
+            btn.id = 'tryAgainBtnError';
+            btn.className = 'btn-secondary text-white font-bold py-2 px-6 rounded-lg';
+            btn.textContent = 'Try Again';
+
+            wrapper.appendChild(msg);
+            wrapper.appendChild(btn);
+            resultsContainer.appendChild(wrapper);
+
             loadingContainer.classList.add('hidden');
             resultsContainer.classList.remove('hidden');
 
-            document.getElementById('tryAgainBtnError').addEventListener('click', resetModal);
+            btn.addEventListener('click', resetModal);
         }
 
         // --- EVENT LISTENERS ---
