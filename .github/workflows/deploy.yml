@@ -20,6 +20,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: se-tool-matrix # Your Cloudflare Pages project name
+          projectName: se-tool-matrix
           directory: .
+          wranglerVersion: '3'
           # Cloudflare Workers AI is automatically available - no additional setup needed

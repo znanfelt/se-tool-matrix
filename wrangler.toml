@@ -1,0 +1,16 @@
+name = "se-tool-matrix"
+compatibility_date = "2025-07-06"
+pages_build_output_dir = "."
+
+[env.production]
+name = "se-tool-matrix"
+
+[env.preview]
+name = "se-tool-matrix-preview"
+
+# Enable AI binding for Cloudflare Workers AI
+[[env.production.ai]]
+binding = "AI"
+
+[[env.preview.ai]]
+binding = "AI"
