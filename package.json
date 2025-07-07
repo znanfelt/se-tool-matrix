@@ -1,0 +1,31 @@
+{
+  "name": "se-tool-matrix",
+  "version": "1.0.0",
+  "description": "AI Software Engineering Tooling Decision Matrix - An interactive guide for choosing the right AI development tools",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx wrangler pages dev .",
+    "deploy": "npx wrangler pages deploy .",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/znanfelt/se-tool-matrix.git"
+  },
+  "keywords": [
+    "ai",
+    "software-engineering",
+    "developer-tools",
+    "decision-matrix",
+    "cloudflare-pages"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/znanfelt/se-tool-matrix/issues"
+  },
+  "homepage": "https://github.com/znanfelt/se-tool-matrix#readme",
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}

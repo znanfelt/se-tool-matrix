@@ -1,0 +1,39 @@
+# Environment variables - NEVER commit these!
+.env
+.env.local
+.env.production
+
+# API keys and secrets
+**/secrets.*
+**/*secret*
+**/*key*
+!README.md
+!*.example
+
+# Node modules (if you add any)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+build/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/

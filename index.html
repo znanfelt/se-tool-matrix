@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Software Engineering Tooling Decision Matrix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827;
+            color: #d1d5db;
+        }
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.75);
+        }
+        .table-header {
+            background-color: #1f2937;
+            color: #f9fafb;
+        }
+        .table-row-even {
+            background-color: #1f2937;
+        }
+        .table-row-odd {
+            background-color: #111827;
+        }
+        .btn-primary {
+            background-color: #4f46e5;
+            transition: background-color 0.3s;
+        }
+        .btn-primary:hover {
+            background-color: #4338ca;
+        }
+        .btn-secondary {
+            background-color: #374151;
+            transition: background-color: 0.3s;
+        }
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+        .loader {
+            border-top-color: #4f46e5;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        /* Custom scrollbar for better aesthetics in dark mode */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-white mb-2">AI Software Engineering Tooling Decision Matrix</h1>
+            <p class="text-lg text-gray-400">An Interactive Guide for Q3 2025</p>
+        </header>
+
+        <div class="flex justify-center mb-8">
+            <button id="openModalBtn" class="btn-primary text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition-transform">
+                Get AI-Powered Recommendation
+            </button>
+        </div>
+        
+        <!-- Table Container -->
+        <div class="overflow-x-auto bg-[#1f2937] rounded-lg shadow-2xl">
+            <table class="min-w-full divide-y divide-gray-700">
+                <thead class="table-header">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Tool</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Category</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Primary Use Case</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Environment</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Core Differentiator</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Ideal Persona</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Pricing</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Control vs. Abstraction</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Ecosystem</th>
+                    </tr>
+                </thead>
+                <tbody id="tools-table-body" class="divide-y divide-gray-700">
+                    <!-- Rows will be inserted here by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <footer class="text-center mt-8 text-gray-500 text-sm">
+            <p>Data sourced from the "Agentic Software Development Landscape" report (Q3 2025 Update).</p>
+        </footer>
+    </div>
+
+    <!-- Modal -->
+    <div id="recommendationModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+        <div id="modalContent" class="bg-[#111827] rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-95 opacity-0">
+            <!-- Modal Header -->
+            <div class="sticky top-0 bg-[#1f2937] px-6 py-4 border-b border-gray-700 flex justify-between items-center">
+                <h2 id="modalTitle" class="text-xl font-bold text-white">Find Your Ideal AI Tool</h2>
+                <button id="closeModalBtn" class="text-gray-400 hover:text-white">&times;</button>
+            </div>
+
+            <!-- Modal Body -->
+            <div id="modalBody" class="p-6">
+                <!-- Step 1: Questions -->
+                <div id="questionsContainer">
+                    <p class="text-gray-300 mb-6">Answer these questions to get a personalized recommendation from our AI consultant.</p>
+                    <form id="recommendationForm" class="space-y-6">
+                        <!-- Question 1 -->
+                        <div>
+                            <label class="font-semibold text-white block mb-2">1. What is your primary goal?</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center p-3 bg-[#1f2937] rounded-lg cursor-pointer hover:bg-gray-700">
+                                    <input type="radio" name="goal" value="productivity" class="form-radio h-4 w-4 text-indigo-600 bg-gray-700 border-gray-600 focus:ring-indigo-500" checked>
+                                    <span class="ml-3 text-gray-300">Boost individual developer productivity (Augmentation)</span>
+                                </label>
+                                <label class="flex items-center p-3 bg-[#1f2937] rounded-lg cursor-pointer hover:bg-gray-700">
+                                    <input type="radio" name="goal" value="automation" class="form-radio h-4 w-4 text-indigo-600 bg-gray-700 border-gray-600 focus:ring-indigo-500">
+                                    <span class="ml-3 text-gray-300">Delegate and automate entire tasks (Automation)</span>
+                                </label>
+                            </div>
+                        </div>
+                        <!-- Question 2 -->
+                        <div>
+                            <label class="font-semibold text-white block mb-2">2. What is your technology ecosystem?</label>
+                             <div class="space-y-2">
+                                <label class="flex items-center p-3 bg-[#1f2937] rounded-lg cursor-pointer hover:bg-gray-700">
+                                    <input type="radio" name="ecosystem" value="GitHub / Microsoft Azure" class="form-radio h-4 w-4 text-indigo-600 bg-gray-700 border-gray-600 focus:ring-indigo-500" checked>
+                                    <span class="ml-3 text-gray-300">GitHub / Microsoft Azure</span>
+                                </label>
+                                <label class="flex items-center p-3 bg-[#1f2937] rounded-lg cursor-pointer hover:bg-gray-700">
+                                    <input type="radio" name="ecosystem" value="AWS" class="form-radio h-4 w-4 text-indigo-600 bg-gray-700 border-gray-600 focus:ring-indigo-500">
+                                    <span class="ml-3 text-gray-300">Amazon Web Services (AWS)</span>
+                                </label>
+                                <label class="flex items-center p-3 bg-[#1f2937] rounded-lg cursor-pointer hover:bg-gray-700">
+                                    <input type="radio" name="ecosystem" value="Google Cloud" class="form-radio h-4 w-4 text-indigo-600 bg-gray-700 border-gray-600 focus:ring-indigo-500">
+                                    <span class="ml-3 text-gray-300">Google Cloud Platform (GCP)</span>
+                                </label>
+                                <label class="flex items-center p-3 bg-[#1f2937] rounded-lg cursor-pointer hover:bg-gray-700">
+                                    <input type="radio" name="ecosystem" value="Agnostic" class="form-radio h-4 w-4 text-indigo-600 bg-gray-700 border-gray-600 focus:ring-indigo-500">
+                                    <span class="ml-3 text-gray-300">Platform Agnostic / Self-Hosted</span>
+                                </label>
+                            </div>
+                        </div>
+                        <!-- Question 3 -->
+                        <div>
+                            <label class="font-semibold text-white block mb-2">3. How important is data privacy and control?</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center p-3 bg-[#1f2937] rounded-lg cursor-pointer hover:bg-gray-700">
+                                    <input type="radio" name="privacy" value="performance" class="form-radio h-4 w-4 text-indigo-600 bg-gray-700 border-gray-600 focus:ring-indigo-500" checked>
+                                    <span class="ml-3 text-gray-300">Maximum performance is key, cloud-based models are fine.</span>
+                                </label>
+                                <label class="flex items-center p-3 bg-[#1f2937] rounded-lg cursor-pointer hover:bg-gray-700">
+                                    <input type="radio" name="privacy" value="privacy" class="form-radio h-4 w-4 text-indigo-600 bg-gray-700 border-gray-600 focus:ring-indigo-500">
+                                    <span class="ml-3 text-gray-300">High priority. On-premise, self-hosted, or BYOK is preferred.</span>
+                                </label>
+                            </div>
+                        </div>
+                        <!-- Question 4 -->
+                        <div>
+                            <label class="font-semibold text-white block mb-2">4. Who is the primary user?</label>
+                             <div class="space-y-2">
+                                <label class="flex items-center p-3 bg-[#1f2937] rounded-lg cursor-pointer hover:bg-gray-700">
+                                    <input type="radio" name="persona" value="Solo Developer / Small Team" class="form-radio h-4 w-4 text-indigo-600 bg-gray-700 border-gray-600 focus:ring-indigo-500" checked>
+                                    <span class="ml-3 text-gray-300">Solo Developer / Small Team</span>
+                                </label>
+                                <label class="flex items-center p-3 bg-[#1f2937] rounded-lg cursor-pointer hover:bg-gray-700">
+                                    <input type="radio" name="persona" value="Enterprise Team" class="form-radio h-4 w-4 text-indigo-600 bg-gray-700 border-gray-600 focus:ring-indigo-500">
+                                    <span class="ml-3 text-gray-300">Large Enterprise Team</span>
+                                </label>
+                                <label class="flex items-center p-3 bg-[#1f2937] rounded-lg cursor-pointer hover:bg-gray-700">
+                                    <input type="radio" name="persona" value="DevOps Engineer / SRE Team" class="form-radio h-4 w-4 text-indigo-600 bg-gray-700 border-gray-600 focus:ring-indigo-500">
+                                    <span class="ml-3 text-gray-300">DevOps / SRE Team</span>
+                                </label>
+                                 <label class="flex items-center p-3 bg-[#1f2937] rounded-lg cursor-pointer hover:bg-gray-700">
+                                    <input type="radio" name="persona" value="Open Source Contributor" class="form-radio h-4 w-4 text-indigo-600 bg-gray-700 border-gray-600 focus:ring-indigo-500">
+                                    <span class="ml-3 text-gray-300">Open Source Contributor / Hobbyist</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="pt-4 flex justify-end">
+                            <button type="submit" class="btn-primary text-white font-bold py-2 px-6 rounded-lg">Get Recommendation</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Step 2: Loading -->
+                <div id="loadingContainer" class="hidden text-center py-20">
+                    <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-600 h-12 w-12 mb-4 mx-auto"></div>
+                    <p class="text-lg text-white">Our AI consultant is analyzing your needs...</p>
+                    <p class="text-gray-400">This may take a moment.</p>
+                </div>
+
+                <!-- Step 3: Results -->
+                <div id="resultsContainer" class="hidden">
+                    <!-- Results will be injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        // This data is sourced from the "Agentic Software Development Landscape" report.
+        const toolsData = [
+            { tool: "GitHub Copilot", category: "Agentic Assistant (Hybrid)", useCase: "Code Completion & Full SDLC Assistance", environment: "VS Code Extension, JetBrains, Standalone Web, GitHub Actions", differentiator: "Deep Ecosystem Integration: Unmatched integration with the full GitHub platform (Issues, Actions, PRs, Codespaces).", persona: "Enterprise Team", pricing: "Tiered Subscription with \"Premium Requests\" for agentic features and premium models.", control: "Balanced: AI suggests code, chat, and PRs; human approves and merges. Agent mode is more abstract but still produces a reviewable PR.", ecosystem: "GitHub / Microsoft Azure" },
+            { tool: "Devin AI", category: "Autonomous Agent", useCase: "Full-Stack App Generation & Complex Task Resolution", environment: "Agent-Native IDE: A dedicated, web-based IDE where the agent's work can be observed and guided.", differentiator: "Agent-Native Architecture: Built from the ground up for end-to-end task automation, with a focus on high-value enterprise use cases like large-scale refactoring.", persona: "Enterprise Team with high-value, complex projects.", pricing: "Tiered Subscription with usage-based ACUs (Agent Compute Units) for agent run-time.", control: "High Abstraction: User provides a high-level goal; agent generates and executes a complex plan. The IDE adds a layer of control and observability.", ecosystem: "GitHub, GitLab, Jira, Slack, Linear" },
+            { tool: "OpenAI Codex (2025)", category: "Autonomous Agent", useCase: "Autonomous Task Resolution", environment: "Integrated into ChatGPT Web Platform", differentiator: "Deep ChatGPT Integration & Verifiability: Leverages the familiar ChatGPT interface and is powered by OpenAI's frontier models, with a focus on providing citations for its actions.", persona: "Individual Developer / ChatGPT Power User", pricing: "Included with ChatGPT Plus, Team, and Enterprise subscriptions.", control: "High Abstraction: Operates as a \"black-box\" agent within a conversational UI, executing tasks in a secure cloud environment.", ecosystem: "OpenAI / Microsoft Azure" },
+            { tool: "Cursor", category: "AI-Native IDE", useCase: "Code Generation & Refactoring", environment: "Standalone Desktop IDE (VS Code Fork)", differentiator: "AI-First User Experience: A fork of VS Code rebuilt from the ground up for a seamless, predictive, and deeply integrated AI coding workflow.", persona: "Solo Developer / Small Team", pricing: "Freemium with tiered subscriptions for access to more powerful models and features.", control: "Balanced: AI features are woven into the core editor experience, but the developer is always in direct control of the code and commits.", ecosystem: "Agnostic" },
+            { tool: "Windsurf", category: "AI-Native IDE", useCase: "Agentic Code Editing & Debugging", environment: "Standalone Desktop IDE, JetBrains Plugin", differentiator: "\"Cascade\" Agentic Flow: A powerful agentic system that understands the entire project, iteratively makes changes, runs code, and debugs until a task is complete.", persona: "Enterprise Team / Individual Power User", pricing: "Freemium with paid tiers for access to more powerful models and features.", control: "Balanced to High Abstraction: Offers both fine-grained inline AI and a highly automated \"Cascade\" mode that can build and debug multi-file projects autonomously.", ecosystem: "Agnostic" },
+            { tool: "Tabnine", category: "AI Assistant", useCase: "Enterprise Code Completion", environment: "VS Code Extension, JetBrains, other IDEs", differentiator: "On-Premise Privacy & Personalization: Offers fully air-gapped, on-premise deployment and can be trained on private codebases for hyper-contextual, compliant suggestions.", persona: "Security-Conscious Org", pricing: "Freemium with tiered subscriptions for enterprise features like self-hosting and private code training.", control: "High Control: Primarily an assistant that provides code suggestions. The developer retains full control over every line of code written.", ecosystem: "Self-Hosted / Agnostic" },
+            { tool: "Refact.ai", category: "Agentic Assistant (Hybrid)", useCase: "Autonomous Task Resolution & Code Completion", environment: "VS Code Extension, JetBrains", differentiator: "SWE-bench Performance & Self-Hosting: Consistently top-ranked on SWE-bench, combined with a self-hosting option for privacy and a flexible BYOK model.", persona: "Performance-focused Developer / Privacy-Conscious Org", pricing: "Freemium with a usage-based \"coins\" system and Pro subscriptions. Supports BYOK (Bring Your Own Key).", control: "Balanced: Can operate as a simple assistant or be invoked as a powerful autonomous agent, giving the user a choice of interaction model.", ecosystem: "Self-Hosted / Agnostic" },
+            { tool: "Google Gemini Code Assist", category: "Agentic Assistant (Hybrid)", useCase: "Code Completion & Google Cloud Integration", environment: "VS Code Extension, JetBrains, Google Cloud Shell Editor", differentiator: "Google Cloud Integration & Code Citations: Deeply integrated with the Google Cloud Platform and provides citations for code suggestions to help with license compliance.", persona: "Enterprise Team on GCP", pricing: "Generous free tier with usage-based pricing as part of Google Cloud services.", control: "Balanced: Primarily an assistant, but with agentic capabilities that are deeply aware of the GCP environment. Human remains in control.", ecosystem: "Google Cloud" },
+            { tool: "AWS Q Developer", category: "Agentic Assistant (Hybrid)", useCase: "Code Completion & AWS Integration", environment: "VS Code Extension, JetBrains, AWS Cloud9", differentiator: "Deep AWS Ecosystem Integration: Native understanding of AWS services, APIs, IAM permissions, and infrastructure-as-code templates.", persona: "DevOps Engineer / Enterprise Team on AWS", pricing: "Included in AWS plans with usage-based pricing for certain features.", control: "Balanced: Operates as a powerful assistant with specialized knowledge of AWS, guiding the developer rather than taking over.", ecosystem: "AWS" },
+            { tool: "Aider", category: "Agent-Native CLI", useCase: "Autonomous Task Resolution", environment: "Command-Line Interface (CLI)", differentiator: "Deep Git Integration: Every AI-driven change is automatically committed with a descriptive message, providing a transparent, auditable workflow using familiar Git commands.", persona: "CLI Power User / Control-focused Developer", pricing: "Open Source: Free to use; user pays for their own LLM API calls (BYOK).", control: "High Control: While the agent acts autonomously on a task, its actions are granularly tracked and easily reversible via Git, keeping the developer in ultimate control.", ecosystem: "Agnostic" },
+            { tool: "Cline", category: "Agentic Assistant (Hybrid)", useCase: "Workflow Automation & Autonomous Coding", environment: "VS Code Extension", differentiator: "Flexibility & Control: Open-source VS Code agent with broad model support (including local models), terminal execution, browser automation, and MCP integration for custom tools.", persona: "Open Source Contributor / Customization-focused Developer", pricing: "Open Source: Free to use; BYOK model where user pays for their own API usage.", control: "Balanced: AI plans and executes actions (file edits, terminal commands), but each step is presented for human approval, offering a powerful yet safe workflow.", ecosystem: "Agnostic" },
+            { tool: "OpenDevin", category: "Autonomous Agent", useCase: "Autonomous Task Resolution", environment: "Web-Based Platform (Self-Hosted)", differentiator: "Open-Source Replication of Devin: A community-driven effort to build a transparent, accessible, and powerful autonomous agent with capabilities similar to Devin AI.", persona: "Open Source Community / AI Researcher", pricing: "Open Source: Free to use; user provides their own LLM API key and compute resources.", control: "High Abstraction: Designed to replicate Devin's autonomous workflow, where the agent takes a high-level goal and executes it in a sandboxed environment.", ecosystem: "Agnostic" },
+            { tool: "Tembo", category: "Autonomous Agent", useCase: "Proactive Production Monitoring & Maintenance", environment: "Web-Based Platform (integrates with monitoring tools)", differentiator: "Proactive Maintenance Model: Autonomously monitors production environments (e.g., Sentry, New Relic), detects issues, and generates PRs to fix them without a human prompt.", persona: "DevOps Engineer / SRE Team", pricing: "Enterprise Contract (Pricing not public).", control: "High Abstraction (Proactive): The highest level of abstraction, where the agent initiates its own tasks based on live system data, not user commands.", ecosystem: "Agnostic" }
+        ];
+
+        // --- DOM ELEMENTS ---
+        const tableBody = document.getElementById('tools-table-body');
+        const modal = document.getElementById('recommendationModal');
+        const modalContent = document.getElementById('modalContent');
+        const modalTitle = document.getElementById('modalTitle');
+        const openModalBtn = document.getElementById('openModalBtn');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const form = document.getElementById('recommendationForm');
+        const questionsContainer = document.getElementById('questionsContainer');
+        const loadingContainer = document.getElementById('loadingContainer');
+        const resultsContainer = document.getElementById('resultsContainer');
+
+        // --- FUNCTIONS ---
+
+        /**
+         * Populates the main table with tool data.
+         */
+        function populateTable() {
+            let tableHTML = '';
+            toolsData.forEach((tool, index) => {
+                const rowClass = index % 2 === 0 ? 'table-row-even' : 'table-row-odd';
+                tableHTML += `
+                    <tr class="${rowClass}">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">${tool.tool}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${tool.category}</td>
+                        <td class="px-6 py-4 text-sm text-gray-300">${tool.useCase}</td>
+                        <td class="px-6 py-4 text-sm text-gray-300">${tool.environment}</td>
+                        <td class="px-6 py-4 text-sm text-gray-300">${tool.differentiator}</td>
+                        <td class="px-6 py-4 text-sm text-gray-300">${tool.persona}</td>
+                        <td class="px-6 py-4 text-sm text-gray-300">${tool.pricing}</td>
+                        <td class="px-6 py-4 text-sm text-gray-300">${tool.control}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${tool.ecosystem}</td>
+                    </tr>
+                `;
+            });
+            tableBody.innerHTML = tableHTML;
+        }
+
+        /**
+         * Opens the recommendation modal with a smooth animation.
+         */
+        function openModal() {
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+            }, 10);
+        }
+
+        /**
+         * Closes the recommendation modal and resets its state.
+         */
+        function closeModal() {
+            modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                resetModal();
+            }, 300);
+        }
+
+        /**
+         * Resets the modal to its initial state (showing questions).
+         */
+        function resetModal() {
+            questionsContainer.classList.remove('hidden');
+            loadingContainer.classList.add('hidden');
+            resultsContainer.classList.add('hidden');
+            resultsContainer.innerHTML = '';
+            modalTitle.textContent = 'Find Your Ideal AI Tool';
+            form.reset();
+        }
+
+        /**
+         * Handles the form submission to get AI recommendations.
+         * @param {Event} e - The form submission event.
+         */
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const userChoices = {
+                goal: formData.get('goal'),
+                ecosystem: formData.get('ecosystem'),
+                privacy: formData.get('privacy'),
+                persona: formData.get('persona'),
+            };
+
+            // Transition to loading state
+            questionsContainer.classList.add('hidden');
+            loadingContainer.classList.remove('hidden');
+
+            try {
+                const recommendations = await getAiRecommendations(userChoices);
+                displayResults(recommendations);
+            } catch (error) {
+                console.error("Error fetching AI recommendations:", error);
+                displayError("Sorry, our AI consultant is currently unavailable. Please try again later.");
+            }
+        }
+        
+        /**
+         * Calls the backend API to get tool recommendations.
+         * @param {object} choices - The user's answers to the questions.
+         * @returns {Promise<object>} - A promise that resolves to the AI's recommendations.
+         */
+        async function getAiRecommendations(choices) {
+            const response = await fetch('/api/recommendations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userChoices: choices,
+                    toolsData: toolsData
+                })
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`API request failed: ${response.status} ${errorText}`);
+            }
+
+            return await response.json();
+        }
+
+        /**
+         * Displays the AI's recommendations in the modal.
+         * @param {object} data - The recommendation data from the API.
+         */
+        function displayResults(data) {
+            modalTitle.textContent = 'Your Personalized Recommendations';
+            let resultsHTML = `
+                <div class="space-y-4">
+            `;
+            const medalColors = ['text-yellow-400', 'text-gray-400', 'text-yellow-600'];
+            
+            data.recommendations.forEach((rec, index) => {
+                const toolDetails = toolsData.find(t => t.tool === rec.tool);
+                resultsHTML += `
+                    <div class="bg-[#1f2937] p-4 rounded-lg border border-gray-700 shadow-md">
+                        <div class="flex items-start">
+                             <div class="text-2xl mr-4 mt-1">${['🥇', '🥈', '🥉'][index]}</div>
+                            <div>
+                                <h3 class="text-lg font-bold text-white">${rec.rank}. ${rec.tool}</h3>
+                                <p class="text-indigo-400 font-semibold text-sm mb-2">${toolDetails.category}</p>
+                                <p class="text-gray-300 mb-3"><strong class="text-white">Justification:</strong> ${rec.justification}</p>
+                                <div class="text-xs text-gray-400 border-t border-gray-600 pt-2 mt-2">
+                                    <p><strong>Use Case:</strong> ${toolDetails.useCase}</p>
+                                    <p><strong>Differentiator:</strong> ${toolDetails.differentiator}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            resultsHTML += `
+                </div>
+                <div class="mt-6 text-center">
+                    <button id="tryAgainBtn" class="btn-secondary text-white font-bold py-2 px-6 rounded-lg">Start Over</button>
+                </div>
+            `;
+
+            resultsContainer.innerHTML = resultsHTML;
+            loadingContainer.classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
+
+            document.getElementById('tryAgainBtn').addEventListener('click', resetModal);
+        }
+
+        /**
+         * Displays an error message in the results container.
+         * @param {string} message - The error message to display.
+         */
+        function displayError(message) {
+            modalTitle.textContent = 'An Error Occurred';
+            resultsContainer.innerHTML = `
+                <div class="text-center py-10">
+                    <p class="text-red-400 mb-4">${message}</p>
+                    <button id="tryAgainBtnError" class="btn-secondary text-white font-bold py-2 px-6 rounded-lg">Try Again</button>
+                </div>
+            `;
+            loadingContainer.classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
+
+            document.getElementById('tryAgainBtnError').addEventListener('click', resetModal);
+        }
+
+        // --- EVENT LISTENERS ---
+        document.addEventListener('DOMContentLoaded', populateTable);
+        openModalBtn.addEventListener('click', openModal);
+        closeModalBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+        form.addEventListener('submit', handleFormSubmit);
+
+    </script>
+</body>
+</html>

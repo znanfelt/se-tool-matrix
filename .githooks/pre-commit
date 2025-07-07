@@ -1,0 +1,27 @@
+# Pre-commit Security Checks
+
+# Check if any potential secrets are being committed
+files_with_secrets() {
+    grep -r -i --include="*.js" --include="*.html" --include="*.env" \
+        -E "(api_key|apikey|secret|password|token)" . || true
+}
+
+echo "🔍 Checking for potential secrets in staged files..."
+
+# Check if .env files (except .example) are being committed
+if git diff --cached --name-only | grep -E "\.env$|\.env\..*$" | grep -v "\.example$"; then
+    echo "❌ ERROR: .env files detected in staging area!"
+    echo "Never commit environment files with real secrets."
+    echo "Did you mean to commit .env.example instead?"
+    exit 1
+fi
+
+# Check for common secret patterns in staged files
+if git diff --cached | grep -i -E "(api_key|apikey|secret|password|token).*[=:]\s*['\"][^'\"\s]{10,}"; then
+    echo "❌ ERROR: Potential secrets detected in staged changes!"
+    echo "Please remove any API keys, passwords, or tokens before committing."
+    exit 1
+fi
+
+echo "✅ Security check passed - no secrets detected in staged files."
+exit 0
