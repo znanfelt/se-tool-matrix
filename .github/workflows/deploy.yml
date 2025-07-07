@@ -22,5 +22,5 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: se-tool-matrix
           directory: .
-          wranglerVersion: '3'
+          wranglerVersion: "3"
           # Cloudflare Workers AI is automatically available - no additional setup needed

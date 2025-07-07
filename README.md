@@ -27,7 +27,7 @@ Note: No external AI API key needed - uses Cloudflare Workers AI automatically!
    - Click "Create a project" → "Connect to Git"
    - Select your repository
    - Set build settings:
-     - Build command: `echo "Static site, no build needed"`
+     - Build command: `echo "Static site"`
      - Build output directory: `/`
 
 3. **Set Environment Variables** in Cloudflare Pages:
@@ -96,6 +96,8 @@ If you prefer not to use GitHub Actions:
 │   └── pre-commit              # Git hook to prevent secret commits
 ├── .env.example                # Environment variables template
 ├── .gitignore                  # Git ignore rules (includes security patterns)
+├── .nvmrc                      # Node.js version specification
+├── wrangler.toml               # Cloudflare Workers configuration
 ├── package.json                # Node.js configuration
 ├── setup.sh                    # Development environment setup script
 ├── SECURITY.md                 # Security policy and best practices

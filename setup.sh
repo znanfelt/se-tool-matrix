@@ -22,7 +22,7 @@ if [ ! -f ".env" ]; then
     echo "⚠️  No .env file found. Creating from template..."
     cp .env.example .env
     echo "📝 Created .env file from .env.example"
-    echo "🔧 Please edit .env and add your GEMINI_API_KEY"
+    echo "ℹ️  No API key setup needed - Cloudflare AI works automatically!"
 else
     echo "✅ .env file already exists"
 fi
@@ -34,15 +34,10 @@ else
     echo "⚠️  Wrangler CLI not found. Install with: npm install -g wrangler"
 fi
 
-# Validate .env file has placeholder
-if [ -f ".env" ] && grep -q "your_actual_gemini_api_key_here" .env; then
-    echo "⚠️  Don't forget to replace the placeholder in .env with your actual API key"
-fi
-
 echo ""
 echo "🎉 Setup complete! Next steps:"
-echo "1. Edit .env and add your GEMINI_API_KEY"
-echo "2. Run 'npm run dev' to start local development"
-echo "3. Visit the Security section in README.md for best practices"
+echo "1. Run 'npm run dev' to start local development"
+echo "2. Visit the Security section in README.md for best practices"
+echo "3. Deploy to Cloudflare Pages for AI functionality"
 echo ""
-echo "🔒 Security reminder: Never commit real API keys to version control!"
+echo "🔒 Security reminder: Cloudflare AI is automatically available - no external API keys needed!"
