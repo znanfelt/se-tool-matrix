@@ -5,12 +5,11 @@ pages_build_output_dir = "."
 [env.production]
 name = "se-tool-matrix"
 
+[env.production.ai]
+binding = "AI"
+
 [env.preview]
 name = "se-tool-matrix-preview"
 
-# Enable AI binding for Cloudflare Workers AI
-[[env.production.ai]]
-binding = "AI"
-
-[[env.preview.ai]]
+[env.preview.ai]
 binding = "AI"
