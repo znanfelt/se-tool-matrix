@@ -1,6 +1,9 @@
 name = "se-tool-matrix"
-compatibility_date = "2025-07-06"
+compatibility_date = "2025-06-17"
 pages_build_output_dir = "."
+
+# AI binding for Workers AI
+ai = { binding = "AI" }
 
 [env.production]
 name = "se-tool-matrix"

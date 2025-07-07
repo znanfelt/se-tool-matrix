@@ -227,15 +227,36 @@ Do not recommend tools that are a clear mismatch for the user's stated ecosystem
         throw new Error('Invalid response size');
       }
       
-      // More secure JSON extraction with better regex
-      const jsonMatch = responseText.match(/\{[\s\S]*?\}/);
-      if (!jsonMatch) {
+      // More secure JSON extraction - find the complete JSON object
+      const firstBrace = responseText.indexOf('{');
+      if (firstBrace === -1) {
         throw new Error('No valid JSON found in response');
       }
+      
+      let braceCount = 0;
+      let endPos = firstBrace;
+      
+      for (let i = firstBrace; i < responseText.length; i++) {
+        if (responseText[i] === '{') {
+          braceCount++;
+        } else if (responseText[i] === '}') {
+          braceCount--;
+          if (braceCount === 0) {
+            endPos = i;
+            break;
+          }
+        }
+      }
+      
+      if (braceCount !== 0) {
+        throw new Error('Invalid JSON structure - unmatched braces');
+      }
+      
+      const jsonString = responseText.substring(firstBrace, endPos + 1);
 
       let parsedResponse;
       try {
-        parsedResponse = JSON.parse(jsonMatch[0]);
+        parsedResponse = JSON.parse(jsonString);
       } catch (jsonError) {
         throw new Error('Invalid JSON structure');
       }
