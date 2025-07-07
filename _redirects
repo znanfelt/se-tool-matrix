@@ -1,0 +1,7 @@
+# Cloudflare Pages Redirects and Cache Rules
+
+# Cache everything for a day
+/*  /index.html  200  Cache-Control: public, max-age=86400
+
+# API responses - cache aggressively
+/api/recommendations  /api/recommendations  200  Cache-Control: public, max-age=3600, s-maxage=86400

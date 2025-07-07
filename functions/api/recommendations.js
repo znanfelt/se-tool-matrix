@@ -1,3 +1,16 @@
+/**
+ * Create a simple hash for cache keys (using Web Crypto API)
+ * @param {string} input - The input string to hash
+ * @returns {Promise<string>} - A hex hash string
+ */
+async function createSimpleHash(input) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(input);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 16);
+}
+
 export async function onRequestPost(context) {
   const { request, env, cf } = context;
   
@@ -142,6 +155,39 @@ export async function onRequestPost(context) {
         });
       }
     }
+
+    // 🚀 AGGRESSIVE CACHING IMPLEMENTATION
+    // Create a cache key based on user choices and tool data
+    const cacheKeyData = {
+      choices: sanitizedChoices,
+      toolsCount: toolsData.length,
+      toolsHash: await createSimpleHash(JSON.stringify(toolsData.map(t => ({ name: t.name || t.tool, category: t.category }))))
+    };
+    const cacheKey = `ai-recommendations:${await createSimpleHash(JSON.stringify(cacheKeyData))}`;
+    
+    // Check Cloudflare cache first
+    const cache = caches.default;
+    const cacheUrl = new URL(request.url);
+    cacheUrl.searchParams.set('key', cacheKey);
+    
+    let cachedResponse = await cache.match(cacheUrl);
+    if (cachedResponse) {
+      console.log('Cache HIT for key:', cacheKey);
+      // Add cache headers to cached response
+      const response = new Response(cachedResponse.body, {
+        status: cachedResponse.status,
+        headers: {
+          ...Object.fromEntries(cachedResponse.headers),
+          'X-Cache-Status': 'HIT',
+          'Access-Control-Allow-Origin': origin || 'null',
+          'Access-Control-Allow-Methods': 'POST',
+          'Access-Control-Allow-Headers': 'Content-Type',
+        }
+      });
+      return response;
+    }
+    
+    console.log('Cache MISS for key:', cacheKey);
 
     // Build the prompt for Cloudflare AI
     const prompt = `You are an expert consultant specializing in AI-driven software development workflows and tooling.
@@ -308,7 +354,9 @@ Do not recommend tools that are a clear mismatch for the user's stated ecosystem
       });
     }
     
-    return new Response(JSON.stringify({ recommendations }), {
+    // 🚀 CREATE CACHED RESPONSE WITH AGGRESSIVE CACHING
+    const responseData = JSON.stringify({ recommendations });
+    const response = new Response(responseData, {
       status: 200,
       headers: { 
         'Content-Type': 'application/json',
@@ -319,11 +367,29 @@ Do not recommend tools that are a clear mismatch for the user's stated ecosystem
         'X-Frame-Options': 'DENY',
         'X-XSS-Protection': '1; mode=block',
         'Referrer-Policy': 'strict-origin-when-cross-origin',
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
+        
+        // 🚀 AGGRESSIVE CACHING HEADERS
+        'Cache-Control': 'public, max-age=3600, s-maxage=86400', // 1 hour browser, 24 hours edge
+        'ETag': `"${cacheKey}"`,
+        'Vary': 'Origin',
+        'X-Cache-Status': 'MISS',
+        
+        // Performance headers
+        'CF-Cache-Tag': 'ai-recommendations',
+        'Edge-Cache-Tag': 'recommendations'
       }
     });
+
+    // Store in Cloudflare cache for 24 hours
+    try {
+      const cacheResponse = response.clone();
+      await cache.put(cacheUrl, cacheResponse);
+      console.log('Cached response for key:', cacheKey);
+    } catch (cacheError) {
+      console.warn('Failed to cache response:', cacheError.message);
+    }
+
+    return response;
     
   } catch (error) {
     // Log error securely without exposing sensitive data
@@ -380,5 +446,89 @@ export async function onRequestOptions(context) {
       'X-Frame-Options': 'DENY',
       'X-XSS-Protection': '1; mode=block'
     }
+  });
+}
+
+// Handle cache purging (Admin only)
+export async function onRequestDelete(context) {
+  const { request, env } = context;
+  const url = new URL(request.url);
+  const purgeKey = url.searchParams.get('key');
+  
+  // Simple admin check using environment variable
+  const adminToken = url.searchParams.get('token');
+  const expectedToken = env.ADMIN_TOKEN || 'change-me-in-production';
+  if (adminToken !== expectedToken) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  try {
+    if (purgeKey === 'all') {
+      // Purge all cached recommendations
+      // Note: Cloudflare Workers doesn't have a direct "purge all" API
+      // This would typically be done via Cloudflare API
+      return new Response(JSON.stringify({ 
+        message: 'Cache purge requested. Use Cloudflare dashboard to purge by cache tag: ai-recommendations' 
+      }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    } else {
+      return new Response(JSON.stringify({ error: 'Invalid purge request' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+  } catch (error) {
+    return new Response(JSON.stringify({ error: 'Purge failed' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+// Handle cache statistics (GET request)
+export async function onRequestGet(context) {
+  const { request } = context;
+  const url = new URL(request.url);
+  
+  if (url.pathname.endsWith('/cache-stats')) {
+    return new Response(JSON.stringify({
+      caching: {
+        enabled: true,
+        strategy: 'aggressive',
+        browserTTL: '1 hour',
+        edgeTTL: '24 hours',
+        keyStrategy: 'SHA-256 hash of user choices + tools',
+        headers: {
+          'Cache-Control': 'public, max-age=3600, s-maxage=86400',
+          'CF-Cache-Tag': 'ai-recommendations'
+        }
+      },
+      endpoints: {
+        'POST /api/recommendations': 'Get AI recommendations (cached)',
+        'DELETE /api/recommendations?key=all': 'Purge cache (admin)',
+        'GET /api/recommendations/cache-stats': 'View cache configuration'
+      }
+    }), {
+      status: 200,
+      headers: { 
+        'Content-Type': 'application/json',
+        'Cache-Control': 'public, max-age=300' // Cache stats for 5 minutes
+      }
+    });
+  }
+
+  return new Response(JSON.stringify({
+    service: 'AI Tool Recommendation API',
+    version: '2.0.0',
+    caching: 'enabled',
+    endpoints: ['POST', 'OPTIONS', 'DELETE', 'GET /cache-stats']
+  }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' }
   });
 }

@@ -366,6 +366,8 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Cache-Control': 'max-age=3600', // Prefer cached responses up to 1 hour
+                    'X-Client-Version': '2.0.0'
                 },
                 body: JSON.stringify({
                     userChoices: choices,
@@ -374,6 +376,12 @@
             });
 
             console.log('API response status:', response.status, response.statusText);
+            
+            // Log cache status
+            const cacheStatus = response.headers.get('X-Cache-Status');
+            if (cacheStatus) {
+                console.log('Cache status:', cacheStatus);
+            }
 
             if (!response.ok) {
                 const errorText = await response.text();

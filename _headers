@@ -1,0 +1,39 @@
+# Cloudflare Pages Headers Configuration
+# Aggressive caching for static assets and API responses
+
+# Static assets - long-term caching
+/*.css
+  Cache-Control: public, max-age=31536000, immutable
+  
+/*.js
+  Cache-Control: public, max-age=31536000, immutable
+  
+/*.png
+  Cache-Control: public, max-age=31536000, immutable
+  
+/*.jpg
+  Cache-Control: public, max-age=31536000, immutable
+  
+/*.gif
+  Cache-Control: public, max-age=31536000, immutable
+  
+/*.svg
+  Cache-Control: public, max-age=31536000, immutable
+
+# HTML - short-term caching with revalidation
+/*.html
+  Cache-Control: public, max-age=300, must-revalidate
+  
+# Root HTML
+/
+  Cache-Control: public, max-age=300, must-revalidate
+
+# API endpoints - handled by function but add additional headers
+/api/*
+  X-Robots-Tag: noindex
+  CF-Cache-Tag: api
+  
+# AI recommendations specifically
+/api/recommendations
+  CF-Cache-Tag: ai-recommendations
+  Vary: Origin, Content-Type
